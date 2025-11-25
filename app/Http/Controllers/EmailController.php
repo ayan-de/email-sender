@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Jobs\SendEmail;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -13,9 +15,16 @@ class EmailController extends Controller
         $toEmail = 'deayan252@gmail.com';
         $message = 'This is a test email.';
         $subject = 'Test Email';
+        // Find the user by email — the SendEmail job expects an App\Models\User instance
+        $user = User::where('email', $toEmail)->first();
 
-        $request = Mail::to($toEmail)->send(new welcomeemail($message,$subject));
+        if (! $user) {
+            return response()->json(['error' => 'User not found for email: ' . $toEmail], 404);
+        }
 
-        dd($request);
+        // Dispatch the job (it will send the mail). Do not call Mail::send() here to avoid duplicate sends.
+        dispatch(new SendEmail($user, $message, $subject));
+
+        return response()->json(['status' => 'dispatched']);
     }
 }

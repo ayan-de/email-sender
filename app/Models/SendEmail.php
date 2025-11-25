@@ -15,6 +15,8 @@ class SendEmail extends Model
 
     protected $fillable = [
         'user_id',
+        'subject',
+        'body',
         'is_sent',
         'is_retry',
     ];
