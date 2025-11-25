@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $users = User::factory()->count(50)->create();
-        SendEmail::factory()->count(50)->create();
+        $users = User::factory()->count(10)->create();
+        SendEmail::factory()->count(10)->create();
     }
 }
