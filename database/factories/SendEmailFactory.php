@@ -17,8 +17,11 @@ class SendEmailFactory extends Factory
 
     public function definition(): array
     {
+        // For one-to-one relationship, get a user that doesn't have a send_email yet
+        $userWithoutEmail = User::whereDoesntHave('sendEmail')->inRandomOrder()->first();
+        
         return [
-            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'user_id' => $userWithoutEmail?->id ?? User::factory(),
             'is_sent' => 0,
             'is_retry' => 0,
         ];
