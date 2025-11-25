@@ -21,6 +21,43 @@
     </head>
 
     <body>
-        Hello
+        <div style="max-width: 1200px; margin: 50px auto; padding: 20px;">
+            <h1 style="text-align: center; color: #333; margin-bottom: 30px;">Email Sending Status</h1>
+            
+            <table style="width: 100%; border-collapse: collapse; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <thead>
+                    <tr style="background-color: #4CAF50; color: white;">
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Name</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Is Sent</th>
+                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Retry Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($users as $user)
+                        <tr style="background-color: {{ $loop->even ? '#f9f9f9' : 'white' }};">
+                            <td style="padding: 12px; border: 1px solid #ddd;">{{ $user->name }}</td>
+                            <td style="padding: 12px; border: 1px solid #ddd;">{{ $user->email }}</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                @if($user->is_sent)
+                                    <span style="color: green; font-weight: bold;">✓ Yes</span>
+                                @else
+                                    <span style="color: red; font-weight: bold;">✗ No</span>
+                                @endif
+                            </td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">
+                                {{ $user->is_retry ?? 0 }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" style="padding: 20px; text-align: center; color: #999;">
+                                No users found
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </body>
 </html>
