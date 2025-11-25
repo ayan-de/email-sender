@@ -36,11 +36,20 @@ class SendEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        // Find or create the SendEmail record for this user
-        $emailRecord = SendEmailModel::firstOrCreate(
-            ['user_id' => $this->user->id],
-            ['is_sent' => false, 'is_retry' => 0]
-        );
+        // Find the existing SendEmail record for this user
+        // The command should have already created this record
+        $emailRecord = SendEmailModel::where('user_id', $this->user->id)->first();
+        
+        // If for some reason it doesn't exist, create it
+        if (!$emailRecord) {
+            $emailRecord = SendEmailModel::create([
+                'user_id' => $this->user->id,
+                'is_sent' => false,
+                'is_retry' => 0,
+                'subject' => $this->subject,
+                'body' => $this->message
+            ]);
+        }
 
         try {
             Mail::to($this->user->email)->send(new welcomeemail($this->message, $this->subject));

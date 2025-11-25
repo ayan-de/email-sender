@@ -31,17 +31,33 @@ class SendEmailsToAllUsers extends Command
         $bar->start();
 
         foreach ($users as $user) {
-            // create or update a send_email record for this user
-            $emailRecord = SendEmailModel::updateOrCreate(
-                ['user_id' => $user->id],
-                ['subject' => $subject, 'body' => $message, 'is_sent' => false, 'is_retry' => 0]
-            );
-
-            // If not forcing, skip if already sent
-            if (!$force && $emailRecord->is_sent) {
-                $bar->advance();
-                continue;
+            // Find existing record or create new one
+            $emailRecord = SendEmailModel::firstOrNew(['user_id' => $user->id]);
+            
+            // Update subject and body
+            $emailRecord->subject = $subject;
+            $emailRecord->body = $message;
+            
+            // If forcing resend, reset is_sent and is_retry
+            if ($force) {
+                $emailRecord->is_sent = false;
+                $emailRecord->is_retry = 0;
+            } else {
+                // If not forcing, skip if already sent
+                if ($emailRecord->exists && $emailRecord->is_sent) {
+                    $bar->advance();
+                    continue;
+                }
+                
+                // For new records, initialize is_sent and is_retry
+                if (!$emailRecord->exists) {
+                    $emailRecord->is_sent = false;
+                    $emailRecord->is_retry = 0;
+                }
+                // For existing unsent records, preserve is_retry value
             }
+            
+            $emailRecord->save();
 
             // Dispatch the SendEmail job to the queue
             SendEmailJob::dispatch($user, $message, $subject);
