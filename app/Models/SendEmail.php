@@ -10,7 +10,7 @@ class SendEmail extends Model
     protected $table = 'send_email';
 
     protected $fillable = [
-        'user_email',
+        'user_id',
         'is_sent',
         'is_retry',
     ];
